@@ -1,8 +1,8 @@
 const express = require('express');
-const { userRegistartion, generateOTP, verifyOTP, createPassword, login } = require('../controllers/authController');
+const { userRegistration, generateOTP, verifyOTP, createPassword, login } = require('../controllers/authController');
 const router = express.Router();
 
-router.post('/register_user', userRegistartion);
+router.post('/register_user', userRegistration);
 router.post('/generate_otp', generateOTP);
 router.post('/verify_otp/:id', verifyOTP);
 router.post('/create_password/:id', createPassword);

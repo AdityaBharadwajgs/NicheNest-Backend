@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { sendOtp } = require('../utils/sendEmail');
 
 // 1. Register user (basic info only)
-const userRegistartion = async (req, res) => {
+const userRegistration = async (req, res) => {
   const { fullName, email, mobileNumber, role } = req.body;
 
   try {
@@ -48,7 +48,7 @@ const generateOTP = async (req, res) => {
     await existingUser.save();
 
     await sendOtp(email, otp);
-    return res.status(200).json({ message: 'OTP sent to your email' });
+    return res.status(200).json({ message: 'OTP sent to your email', user: existingUser });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Failed to generate/send OTP' });
@@ -100,7 +100,6 @@ const createPassword = async (req, res) => {
 };
 
 // 5. Login
-// 5. Login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -140,7 +139,7 @@ const login = async (req, res) => {
 };
 
 module.exports = {
-  userRegistartion,
+  userRegistration,
   generateOTP,
   verifyOTP,
   createPassword,

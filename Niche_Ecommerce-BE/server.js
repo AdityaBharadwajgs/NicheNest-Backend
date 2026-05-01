@@ -16,7 +16,9 @@ DB();
 app.use(express.json());
 app.use(
   cors({
-    origin: /http:\/\/localhost:\d+/, // Allow any localhost port for dev
+    origin: process.env.FRONTEND_URL 
+      ? [process.env.FRONTEND_URL, /http:\/\/localhost:\d+/] 
+      : /http:\/\/localhost:\d+/,
     credentials: true,
   })
 );
