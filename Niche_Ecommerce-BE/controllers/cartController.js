@@ -104,7 +104,10 @@ exports.checkout = async (req, res) => {
       const shippingVal = item.product.shipping === "Free" ? 0 : parseInt((item.product.shipping || "0").replace("₹", ""));
       return sum + (isNaN(shippingVal) ? 0 : shippingVal);
     }, 0);
-    const discountRate = promoCodes[code?.toLowerCase()] || 0;
+    const foundPromo = Array.isArray(promoCodes) 
+      ? promoCodes.find(p => p.code.toLowerCase() === code?.toLowerCase()) 
+      : null;
+    const discountRate = foundPromo ? foundPromo.discount : 0;
     const totalDiscount = subtotal * discountRate;
     const total = subtotal + shipping - totalDiscount;
     // Empty the cart after checkout

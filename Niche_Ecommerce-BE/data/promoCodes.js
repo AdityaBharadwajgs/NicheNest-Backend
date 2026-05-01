@@ -1,7 +1,7 @@
 const promoCodes = [
   {
     code: 'DESI10',
-    discount: 0.1, // 10%
+    discount: 0.2, // 20%
   },
   {
     code: 'FREESHIP',
