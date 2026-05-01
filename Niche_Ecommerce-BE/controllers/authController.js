@@ -121,7 +121,10 @@ const login = async (req, res) => {
       role: user.role?.toLowerCase?.() || user.role,
     };
 
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1d' });
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is missing");
+    }
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     // Ensure role is always lowercase in the response
     const userObj = user.toObject();
