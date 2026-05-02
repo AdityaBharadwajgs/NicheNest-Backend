@@ -1,14 +1,17 @@
 const nodemailer = require("nodemailer");
 
-// Create transporter using Brevo SMTP
+// ✅ Use secure SMTP (port 465) for better reliability on Render
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true, // IMPORTANT: true for port 465
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 15000, // 15 sec
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
 });
 
 // ✅ Send OTP Email
