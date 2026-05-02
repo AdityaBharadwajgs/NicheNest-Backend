@@ -1,27 +1,31 @@
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-// ✅ Use secure SMTP (port 465) for better reliability on Render
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 465,
-  secure: true, // IMPORTANT: true for port 465
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  connectionTimeout: 15000, // 15 sec
-  greetingTimeout: 15000,
-  socketTimeout: 15000,
-});
+// ✅ Safety checks (VERY IMPORTANT)
+if (!process.env.BREVO_API_KEY) {
+  console.error("❌ Missing BREVO_API_KEY in environment variables");
+}
+if (!process.env.BREVO_SENDER_EMAIL) {
+  console.error("❌ Missing BREVO_SENDER_EMAIL in environment variables");
+}
+
+// Configure Brevo client
+const client = SibApiV3Sdk.ApiClient.instance;
+const apiKey = client.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY || "";
+
+const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // ✅ Send OTP Email
 const sendOtp = async (mail, otp) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"NicheNest" <${process.env.SMTP_USER}>`,
-      to: mail,
+    const response = await tranEmailApi.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: "NicheNest",
+      },
+      to: [{ email: mail }],
       subject: "OTP Verification",
-      html: `
+      htmlContent: `
         <div style="font-family: Arial, sans-serif;">
           <h2>OTP Verification</h2>
           <p>Your OTP is:</p>
@@ -31,11 +35,14 @@ const sendOtp = async (mail, otp) => {
       `,
     });
 
-    console.log("✅ Email sent:", info.messageId);
+    console.log("✅ Email sent successfully");
     return true;
 
   } catch (error) {
-    console.error("❌ Email error:", error);
+    console.error(
+      "❌ Email error:",
+      error?.response?.body || error?.message || error
+    );
     return false;
   }
 };
@@ -43,18 +50,24 @@ const sendOtp = async (mail, otp) => {
 // ✅ Send General Email
 const sendEmail = async (mail, subject, message) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"NicheNest" <${process.env.SMTP_USER}>`,
-      to: mail,
+    const response = await tranEmailApi.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: "NicheNest",
+      },
+      to: [{ email: mail }],
       subject: subject,
-      html: `<p>${message}</p>`,
+      htmlContent: `<p>${message}</p>`,
     });
 
-    console.log("✅ Email sent:", info.messageId);
+    console.log("✅ Email sent successfully");
     return true;
 
   } catch (error) {
-    console.error("❌ Email error:", error);
+    console.error(
+      "❌ Email error:",
+      error?.response?.body || error?.message || error
+    );
     return false;
   }
 };
