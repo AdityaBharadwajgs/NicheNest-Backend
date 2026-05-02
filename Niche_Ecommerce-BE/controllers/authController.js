@@ -32,23 +32,30 @@ const userRegistration = async (req, res) => {
   }
 };
 
-// 2. Generate OTP and send via email
+// 2. Generate OTP and send via email (✅ FIXED)
 const generateOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const existingUser = await USERS.findOne({ email });
+    let existingUser = await USERS.findOne({ email });
+
+    // 🔥 FIX: allow OTP for new users
     if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
+      existingUser = new USERS({ email });
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
     existingUser.otp = otp;
     existingUser.otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+
     await existingUser.save();
 
     await sendOtp(email, otp);
-    return res.status(200).json({ message: 'OTP sent to your email', user: existingUser });
+
+    return res.status(200).json({
+      message: 'OTP sent to your email',
+      user: existingUser,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Failed to generate/send OTP' });
@@ -126,7 +133,6 @@ const login = async (req, res) => {
     }
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    // Ensure role is always lowercase in the response
     const userObj = user.toObject();
     userObj.role = userObj.role?.toLowerCase?.() || userObj.role;
 
